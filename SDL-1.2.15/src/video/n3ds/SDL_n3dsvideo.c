@@ -195,6 +195,7 @@ SDL_Surface *N3DS_SetVideoMode(_THIS, SDL_Surface *current,
 			Amask = 0;
 			this->hidden->mode=GSP_RGBA8_OES;
 			this->hidden->byteperpixel=4;
+			break;
 		default:
 			return NULL;
 			break;
@@ -265,11 +266,16 @@ SDL_Surface *N3DS_SetVideoMode(_THIS, SDL_Surface *current,
 	return NULL;
 }
 
+#define N3DS_CopyLoop(code) for (i = 0; i < rows; i++) { \
+src_addr = src_base_addr + (rect->x + (this->hidden->h - (i + rect->y)) * this->hidden->w ) * this->hidden->byteperpixel; \
+dst_addr = dst_base_addr + ( i + rect->y + this->hidden->win_y + rect->x * this->hidden->scr_h) * this->hidden->byteperpixel; \
+for (j = 0; j < cols; j++) { \
+code \
+dst_addr += dst_delta; }}
 static void N3DS_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
-	int src_skip = SDL_VideoSurface->pitch;
-	int dst_skip = this->hidden->scr_w * this->hidden->byteperpixel;
 	int i, j, k;
+	Uint32 dst_delta = this->hidden->scr_h * this->hidden->byteperpixel;
 
 	for ( i = 0; i < numrects; ++i ) {
 		SDL_Rect *rect = &rects[i];
@@ -288,21 +294,16 @@ static void N3DS_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		rows = (rect->y + rect->h > this->hidden->h) ? this->hidden->h : rect->h;
 
 		if ( SDL_VideoSurface->format->BitsPerPixel == 8 ) {
-			// 8 bpp SW, 32 bpp HW
-			/*N3DS_DRAW_LOOP(
-				for ( j = 0, k = 0; k < row_bytes; j += 2, ++k )
-					*(Uint16 *)(dst_addr + j) = n3ds_palette[src_addr[k]];
-			);*/
-		} else {
-			for (i = 0; i < rows; i++) {
-				src_addr = src_base_addr + (rect->x + (this->hidden->h - (i + rect->y)) * this->hidden->w ) * this->hidden->byteperpixel;
-				for (j = 0; j < cols; j++) {
-					dst_addr = dst_base_addr + ( i + rect->y + this->hidden->win_y + (j + rect->x) * this->hidden->scr_h) * this->hidden->byteperpixel;
-					for (k = 0; k < (this->hidden->byteperpixel); k++) {
-						*dst_addr++ = *src_addr++;
-					}
-				}
-			}
+			N3DS_CopyLoop(*(Uint32 *)dst_addr = n3ds_palette[*(Uint8 *)src_addr]; src_addr++;)
+		} else if ( SDL_VideoSurface->format->BitsPerPixel == 32 ) {
+			N3DS_CopyLoop(*(Uint32 *)dst_addr = *(Uint32 *)src_addr; src_addr+=4;)
+		} else if ( SDL_VideoSurface->format->BitsPerPixel == 24 ) {
+			N3DS_CopyLoop(  *(Uint8 *)dst_addr++ = *(Uint8 *)src_addr++;
+					*(Uint8 *)dst_addr++ = *(Uint8 *)src_addr++;
+					*(Uint8 *)dst_addr++ = *(Uint8 *)src_addr++;
+					dst_addr-=3;)
+		} else if ( SDL_VideoSurface->format->BitsPerPixel == 16 ) {
+			N3DS_CopyLoop(*(Uint16 *)dst_addr = *(Uint16 *)src_addr; src_addr+=2;)
 		}
 	}
 	gfxFlushBuffers();
@@ -314,8 +315,8 @@ static void N3DS_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 static int N3DS_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {
 	int i;
-	/*for ( i = firstcolor; i < firstcolor + ncolors; ++i )
-		n3ds_palette[i] = N3DS_MAP_RGB(colors[i].r, colors[i].g, colors[i].b);*/
+	for ( i = firstcolor; i < firstcolor + ncolors; ++i )
+		n3ds_palette[i] = N3DS_MAP_RGB(colors[i].r, colors[i].g, colors[i].b);
 	return(1);
 }
 
