@@ -38,7 +38,7 @@
 size_t stream_offset = 0;
 
 /* The tag name used by N3DS audio */
-#define N3DSAUD_DRIVER_NAME         "n3ds audio driver"
+#define N3DSAUD_DRIVER_NAME         "n3ds"
 
 /* Audio driver functions */
 static int N3DSAUD_OpenAudio(_THIS, SDL_AudioSpec *spec);
@@ -118,7 +118,7 @@ static void N3DSAUD_WaitAudio(_THIS)
 
 static void N3DSAUD_PlayAudio(_THIS)
 {
-
+	printf("N3DSAUD_PlayAudio\n");
 	if (this->hidden->format==NDSP_FORMAT_STEREO_PCM8 || this->hidden->format==NDSP_FORMAT_MONO_PCM8) {
 		memcpy(this->hidden->waveBuf[this->hidden->nextbuf].data_pcm8,this->hidden->mixbuf,this->hidden->mixlen);
 		DSP_FlushDataCache(this->hidden->waveBuf[this->hidden->nextbuf].data_pcm8,this->hidden->mixlen);
@@ -155,7 +155,7 @@ static void N3DSAUD_ThreadInit(SDL_AudioDevice *thisdevice)
 */
 
 static int N3DSAUD_OpenAudio(_THIS, SDL_AudioSpec *spec)
-{
+{	
 	int format = 0;
 	if(spec->channels > 2)
 		spec->channels = 2;
@@ -176,6 +176,7 @@ static int N3DSAUD_OpenAudio(_THIS, SDL_AudioSpec *spec)
 			spec->format ^=0x8000;
 			this->hidden->format=(spec->channels==2)?format=NDSP_FORMAT_STEREO_PCM16:NDSP_FORMAT_MONO_PCM16;
 			this->hidden->isSigned=0;
+			break;
 		case AUDIO_S16:
 			/* Signed 16-bit audio supported */
 			this->hidden->format=(spec->channels==2)?format=NDSP_FORMAT_STEREO_PCM16:NDSP_FORMAT_MONO_PCM16;

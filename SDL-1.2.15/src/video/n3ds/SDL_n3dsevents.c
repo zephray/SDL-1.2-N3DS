@@ -91,26 +91,6 @@ void N3DS_InitOSKeymap(_THIS)
 	keymap[9]=SDLK_l; //KEY_L
 	keymap[10]=SDLK_UNKNOWN; 
 	keymap[11]=SDLK_UNKNOWN; 
-	keymap[12]=SDLK_UNKNOWN; 
-	keymap[13]=SDLK_UNKNOWN; 
-	keymap[14]=SDLK_UNKNOWN; 
-	keymap[15]=SDLK_UNKNOWN; 
-	keymap[16]=SDLK_UNKNOWN; 
-	keymap[17]=SDLK_UNKNOWN; 
-	keymap[18]=SDLK_UNKNOWN; 
-	keymap[19]=SDLK_UNKNOWN; 
-	keymap[20]=SDLK_UNKNOWN; 
-	keymap[21]=SDLK_UNKNOWN; 
-	keymap[22]=SDLK_UNKNOWN; 
-	keymap[23]=SDLK_UNKNOWN; 
-	keymap[24]=SDLK_UNKNOWN; 
-	keymap[25]=SDLK_UNKNOWN; 
-	keymap[26]=SDLK_UNKNOWN; 
-	keymap[27]=SDLK_UNKNOWN; 
-	keymap[28]=SDLK_UNKNOWN; 
-	keymap[29]=SDLK_UNKNOWN; 
-	keymap[30]=SDLK_UNKNOWN; 
-	keymap[31]=SDLK_UNKNOWN; 
 }
 
 void SDL_N3DSKeyBind(unsigned int hidkey, SDLKey key) {

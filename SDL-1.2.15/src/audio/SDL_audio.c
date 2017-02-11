@@ -304,7 +304,7 @@ int SDL_AudioInit(const char *driver_name)
 {
 	SDL_AudioDevice *audio;
 	int i = 0, idx;
-
+	
 	/* Check to make sure we don't overwrite 'current_audio' */
 	if ( current_audio != NULL ) {
 		SDL_AudioQuit();
@@ -559,6 +559,7 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 #endif
 			if ( audio->thread == NULL ) {
 				SDL_CloseAudio();
+				printf("Couldn't create audio thread\n");
 				SDL_SetError("Couldn't create audio thread");
 				return(-1);
 			}

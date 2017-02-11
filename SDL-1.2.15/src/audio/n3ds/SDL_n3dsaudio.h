@@ -19,7 +19,7 @@
     Sam Lantinga
     slouken@libsdl.org
 */
-#include "3DS.h"
+#include <3ds.h>
 #include "SDL_config.h"
 
 #ifndef _SDL_n3dsaudio_h
