@@ -179,7 +179,6 @@ int SDLCALL SDL_RunAudio(void *audiop)
 
 	/* Loop, filling the audio buffers */
 	while ( audio->enabled ) {
-
 		/* Fill the current buffer with sound */
 		if ( audio->convert.needed ) {
 			if ( audio->convert.buf ) {
@@ -195,13 +194,11 @@ int SDLCALL SDL_RunAudio(void *audiop)
 		}
 
 		SDL_memset(stream, silence, stream_len);
-
 		if ( ! audio->paused ) {
 			SDL_mutexP(audio->mixer_lock);
 			(*fill)(udata, stream, stream_len);
 			SDL_mutexV(audio->mixer_lock);
 		}
-
 		/* Convert the audio if necessary */
 		if ( audio->convert.needed ) {
 			SDL_ConvertAudio(&audio->convert);
@@ -212,12 +209,10 @@ int SDLCALL SDL_RunAudio(void *audiop)
 			SDL_memcpy(stream, audio->convert.buf,
 			               audio->convert.len_cvt);
 		}
-
 		/* Ready current buffer for play and change current buffer */
 		if ( stream != audio->fake_stream ) {
 			audio->PlayAudio(audio);
 		}
-
 		/* Wait for an audio buffer to become available */
 		if ( stream == audio->fake_stream ) {
 			SDL_Delay((audio->spec.samples*1000)/audio->spec.freq);
@@ -225,7 +220,6 @@ int SDLCALL SDL_RunAudio(void *audiop)
 			audio->WaitAudio(audio);
 		}
 	}
-
 	/* Wait for the audio to drain.. */
 	if ( audio->WaitDone ) {
 		audio->WaitDone(audio);
@@ -499,7 +493,6 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 	audio->paused  = 1;
 
 	audio->opened = audio->OpenAudio(audio, &audio->spec)+1;
-
 	if ( ! audio->opened ) {
 		SDL_CloseAudio();
 		return(-1);
@@ -559,7 +552,6 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 #endif
 			if ( audio->thread == NULL ) {
 				SDL_CloseAudio();
-				printf("Couldn't create audio thread\n");
 				SDL_SetError("Couldn't create audio thread");
 				return(-1);
 			}

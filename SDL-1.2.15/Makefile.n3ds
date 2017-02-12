@@ -37,10 +37,10 @@ OBJS =	src/SDL.o \
 	src/stdlib/SDL_stdlib.o \
 	src/stdlib/SDL_string.o \
 	src/thread/SDL_thread.o \
-	src/thread/generic/SDL_syssem.o \
-	src/thread/generic/SDL_systhread.o \
-	src/thread/generic/SDL_sysmutex.o \
-	src/thread/generic/SDL_syscond.o \
+	src/thread/n3ds/SDL_syssem.o \
+	src/thread/n3ds/SDL_systhread.o \
+	src/thread/n3ds/SDL_sysmutex.o \
+	src/thread/n3ds/SDL_syscond.o \
 	src/timer/SDL_timer.o \
 	src/timer/n3ds/SDL_systimer.o \
 	src/video/SDL_blit.o \
@@ -58,7 +58,6 @@ OBJS =	src/SDL.o \
 	src/video/SDL_video.o \
 	src/video/SDL_yuv.o \
 	src/video/SDL_yuv_sw.o \
-	src/video/n3ds/vshader.shbin.o \
 	src/video/n3ds/SDL_n3dsevents.o \
 	src/video/n3ds/SDL_n3dsvideo.o \
 	src/video/n3ds/SDL_n3dsmouse.o \

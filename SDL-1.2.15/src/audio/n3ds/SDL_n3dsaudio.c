@@ -68,8 +68,6 @@ static void N3DSAUD_DeleteDevice(SDL_AudioDevice *device)
 
 static SDL_AudioDevice *N3DSAUD_CreateDevice(int devindex)
 {
-	ndspInit();
-
 	SDL_AudioDevice *this;
 
 	/* Initialize all variables that we clean on shutdown */
@@ -109,24 +107,28 @@ AudioBootStrap N3DSAUD_bootstrap = {
 static void N3DSAUD_WaitAudio(_THIS)
 {
 	/* Don't block on first calls to simulate initial fragment filling. */
-	if (this->hidden->initial_calls)
+	/*if (this->hidden->initial_calls)
 		this->hidden->initial_calls--;
-	else
+	else*/
 		//SDL_Delay(this->hidden->write_delay);
-		while(this->hidden->waveBuf[this->hidden->nextbuf].status == NDSP_WBUF_DONE);
+		while(this->hidden->waveBuf[this->hidden->nextbuf].status != NDSP_WBUF_DONE){
+			SDL_Delay(30);//Give other thread 50ms of execution time.
+		}
 }
 
 static void N3DSAUD_PlayAudio(_THIS)
 {
-	printf("N3DSAUD_PlayAudio\n");
 	if (this->hidden->format==NDSP_FORMAT_STEREO_PCM8 || this->hidden->format==NDSP_FORMAT_MONO_PCM8) {
 		memcpy(this->hidden->waveBuf[this->hidden->nextbuf].data_pcm8,this->hidden->mixbuf,this->hidden->mixlen);
-		DSP_FlushDataCache(this->hidden->waveBuf[this->hidden->nextbuf].data_pcm8,this->hidden->mixlen);
+		DSP_FlushDataCache(this->hidden->waveBuf[this->hidden->nextbuf].data_pcm8,
+							this->hidden->waveBuf[this->hidden->nextbuf].nsamples);
 	} else {
 		memcpy(this->hidden->waveBuf[this->hidden->nextbuf].data_pcm16,this->hidden->mixbuf,this->hidden->mixlen);
-		DSP_FlushDataCache(this->hidden->waveBuf[this->hidden->nextbuf].data_pcm16,this->hidden->mixlen);
+		DSP_FlushDataCache(this->hidden->waveBuf[this->hidden->nextbuf].data_pcm16,
+							this->hidden->waveBuf[this->hidden->nextbuf].nsamples);
 	}
-	
+	this->hidden->waveBuf[this->hidden->nextbuf].offset=0;
+	this->hidden->waveBuf[this->hidden->nextbuf].status=NDSP_WBUF_QUEUED;
 	ndspChnWaveBufAdd(0, &this->hidden->waveBuf[this->hidden->nextbuf]);
 
 	this->hidden->nextbuf = (this->hidden->nextbuf+1)%2;
@@ -202,11 +204,16 @@ static int N3DSAUD_OpenAudio(_THIS, SDL_AudioSpec *spec)
 //	bytes_per_sec = (float) (((spec->format & 0xFF) / 8) *
 //	                   spec->channels * spec->freq);
 
-//	this->hidden->playing = 0;
+	//this->hidden->playing = 0;
 	this->hidden->nextbuf = 0;
 	this->hidden->channels = spec->channels;
+	this->hidden->samplerate = spec->freq;
 
 //start 3ds DSP init
+	ndspInit();
+
+	ndspChnReset(0);
+	ndspChnWaveBufClear(0);
 
 	ndspSetOutputMode((this->hidden->channels==2)?NDSP_OUTPUT_STEREO:NDSP_OUTPUT_MONO);
 
@@ -221,15 +228,19 @@ static int N3DSAUD_OpenAudio(_THIS, SDL_AudioSpec *spec)
 	ndspChnSetMix(0, mix);
 	
 	memset(this->hidden->waveBuf,0,sizeof(this->hidden->waveBuf));
-	this->hidden->waveBuf[0].data_vaddr = &temp[0];
-	this->hidden->waveBuf[0].nsamples = this->hidden->mixlen;
-	this->hidden->waveBuf[1].data_vaddr = &temp[this->hidden->mixlen];
-	this->hidden->waveBuf[1].nsamples = this->hidden->mixlen;
+	this->hidden->waveBuf[0].data_vaddr = temp;
+	this->hidden->waveBuf[0].nsamples = this->hidden->mixlen / 4;
+	this->hidden->waveBuf[0].status = NDSP_WBUF_DONE;
+	//this->hidden->waveBuf[0].looping = true;
+	this->hidden->waveBuf[1].data_vaddr = temp + this->hidden->mixlen;
+	this->hidden->waveBuf[1].nsamples = this->hidden->mixlen / 4;
+	this->hidden->waveBuf[1].status = NDSP_WBUF_DONE;
+	//this->hidden->waveBuf[0].looping = true;
 
 	stream_offset += this->hidden->mixlen;
 
-	ndspChnWaveBufAdd(0, &this->hidden->waveBuf[0]);
-	ndspChnWaveBufAdd(0, &this->hidden->waveBuf[1]);
+	//ndspChnWaveBufAdd(0, &this->hidden->waveBuf[0]);
+	//ndspChnWaveBufAdd(0, &this->hidden->waveBuf[1]);
 
 // end 3ds DSP init
 

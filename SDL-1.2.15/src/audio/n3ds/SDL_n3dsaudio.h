@@ -27,7 +27,6 @@
 
 #include "../SDL_sysaudio.h"
 
-/* Hidden "this" pointer for the video functions */
 #define _THIS	SDL_AudioDevice *this
 
 #define NUM_BUFFERS 2			/* -- Don't lower this! */
@@ -39,6 +38,7 @@ struct SDL_PrivateAudioData {
 //	Uint32 write_delay;
 	Uint32 initial_calls;
 	Uint32 format;
+    Uint32 samplerate;
 	Uint32 channels;
 	Uint32 isSigned;
 	Uint32 nextbuf;
