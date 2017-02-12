@@ -35,7 +35,7 @@
 #define STACKSIZE       (4 * 1024)
 #define APPCORE_CPUID   0
 
-static void ThreadEntry(void *arg)
+void ThreadEntry(void *arg)
 {
 	SDL_RunThread(arg);
 	//svcExitThread();
@@ -43,19 +43,16 @@ static void ThreadEntry(void *arg)
 
 int SDL_SYS_CreateThread(SDL_Thread *thread, void *args)
 {
-	s32 priority = 0x30;
+	s32 priority = 0x2F;
 
 	/* Set priority of new thread to the same as the current thread */
 	//svcGetThreadPriority(&priority, CURRENT_KTHREAD);
-
-	Result res;
 	thread->handle = threadCreate(ThreadEntry, args,
-		STACKSIZE, priority, APPCORE_CPUID, true);
-
-	if (thread->handle == NULL) {
+		STACKSIZE, priority, -2, false);
+	/*if (thread->handle == NULL) {
 		SDL_SetError("Thread creation failed");
 		return -1;
-	}
+	}*/
 
 	return 0;
 }

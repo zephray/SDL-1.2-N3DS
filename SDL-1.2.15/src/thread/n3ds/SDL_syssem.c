@@ -115,13 +115,14 @@ Uint32 SDL_SemValue(SDL_sem *sem)
 int SDL_SemPost(SDL_sem *sem)
 {
     int res;
+    Sint32 count;
 
     if (sem == NULL) {
         SDL_SetError("Passed a NULL sem");
         return -1;                
     }
 
-    res = svcReleaseSemaphore(NULL, sem->semid, 1);
+    res = svcReleaseSemaphore(&count, sem->semid, 1);
     if (res < 0) {
         SDL_SetError("svcReleaseSemaphore() failed");
         return -1;
