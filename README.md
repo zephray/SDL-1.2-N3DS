@@ -30,7 +30,7 @@ default key bindings are:
  KEY_SELECT -> SDLK_ESCAPE
  KEY_RIGHT -> SDLK_RIGHT
  KEY_LEFT -> SDLK_LEFT
- SDLK_UP -> KEY_UP
+ KEY_UP -> SDLK_UP
  KEY_DOWN -> SDLK_DOWN
  
 a custom function is defined to bind one or more N3DS keys to a SDL key value:
@@ -56,4 +56,12 @@ Mouse pointer is controlled with the touchpad. Touching the bottom screen contro
 
 # AUDIO
 
-Audio is still under development, do not use.
+Audio is working. Audio thread would have a higher priority than the main thread, but it would give main thread a fixed time to process the audio. If you are experiencing problems with the audio, try using a larger sample buffer or change the delay time in SDL_n3dsaudio.c
+
+# MULTITHREAD
+
+Mulitthread is supported. But please bear in mind that due to the design of 3DS' OS, thread won't evenly share CPU time. You would have to use SDL_Delay to give other threads CPU time to run. All threads would be created with a higher priority than the main thread, and they would start running as soon as you create them.
+
+# TIMER
+
+Working in progress.
