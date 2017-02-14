@@ -1,5 +1,7 @@
 # SDL-1.2-N3DS
-Port of SDL-1.2.15 to Nintendo 3DS based on nop90's port
+Port of SDL-1.2.15 to Nintendo 3DS based on nop90's port. This port is basiclly working, very compatible with standard SDL but not very efficient. To port some game which require high processing power, one would better look into a fake SDL wrapper layer.
+
+Example codes using this port can be found under examples folder.
 
 # VIDEO
 Any video size supported, the video would be rendered centered on the screen. The default screen is the top screen. The drawing is unaccelerated and NOT double-buffered, thus make it possible to port simple old programs without concerning the Vblank or flush the buffer, etc.
