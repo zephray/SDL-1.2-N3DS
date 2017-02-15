@@ -40,6 +40,7 @@ struct SDL_PrivateAudioData {
 	Uint32 format;
     Uint32 samplerate;
 	Uint32 channels;
+    Uint8  bytePerSample;
 	Uint32 isSigned;
 	Uint32 nextbuf;
 	ndspWaveBuf waveBuf[NUM_BUFFERS];

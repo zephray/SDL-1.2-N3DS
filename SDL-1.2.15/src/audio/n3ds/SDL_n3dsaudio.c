@@ -112,7 +112,7 @@ static void N3DSAUD_WaitAudio(_THIS)
 	else*/
 		//SDL_Delay(this->hidden->write_delay);
 		while(this->hidden->waveBuf[this->hidden->nextbuf].status != NDSP_WBUF_DONE){
-			SDL_Delay(30);//Give other thread 50ms of execution time.
+			SDL_Delay(5);//Give other thread 5ms of execution time.
 		}
 }
 
@@ -167,29 +167,31 @@ static int N3DSAUD_OpenAudio(_THIS, SDL_AudioSpec *spec)
 			/* Signed 8-bit audio supported */
 			this->hidden->format=(spec->channels==2)?format=NDSP_FORMAT_STEREO_PCM8:NDSP_FORMAT_MONO_PCM8;
 			this->hidden->isSigned=1;
+			this->hidden->bytePerSample = (spec->channels);
 			break;
 		case AUDIO_U8:
 			spec->format ^= 0x80;
 			this->hidden->format=(spec->channels==2)?format=NDSP_FORMAT_STEREO_PCM8:NDSP_FORMAT_MONO_PCM8;
 			this->hidden->isSigned=0;
+			this->hidden->bytePerSample = (spec->channels);
 			break;
 		case AUDIO_U16:
 			/* Unsigned 16-bit audio unsupported, convert to S16 */
 			spec->format ^=0x8000;
 			this->hidden->format=(spec->channels==2)?format=NDSP_FORMAT_STEREO_PCM16:NDSP_FORMAT_MONO_PCM16;
 			this->hidden->isSigned=0;
+			this->hidden->bytePerSample = (spec->channels) * 2;
 			break;
 		case AUDIO_S16:
 			/* Signed 16-bit audio supported */
 			this->hidden->format=(spec->channels==2)?format=NDSP_FORMAT_STEREO_PCM16:NDSP_FORMAT_MONO_PCM16;
 			this->hidden->isSigned=1;
+			this->hidden->bytePerSample = (spec->channels) * 2;
 			break;
 	}
 
 	/* Update the fragment size as size in bytes */
 	SDL_CalculateAudioSpec(spec);
-
-//	float bytes_per_sec = 0.0f;
 
 	/* Allocate mixing buffer */
 	this->hidden->mixlen = spec->size;
@@ -201,15 +203,11 @@ static int N3DSAUD_OpenAudio(_THIS, SDL_AudioSpec *spec)
 	
 	Uint8 * temp = (Uint8 *) linearAlloc(this->hidden->mixlen*2); 
 	
-//	bytes_per_sec = (float) (((spec->format & 0xFF) / 8) *
-//	                   spec->channels * spec->freq);
-
-	//this->hidden->playing = 0;
 	this->hidden->nextbuf = 0;
 	this->hidden->channels = spec->channels;
 	this->hidden->samplerate = spec->freq;
 
-//start 3ds DSP init
+    //start 3ds DSP init
 	ndspInit();
 
 	ndspChnReset(0);
@@ -228,21 +226,21 @@ static int N3DSAUD_OpenAudio(_THIS, SDL_AudioSpec *spec)
 	ndspChnSetMix(0, mix);
 	
 	memset(this->hidden->waveBuf,0,sizeof(this->hidden->waveBuf));
+
 	this->hidden->waveBuf[0].data_vaddr = temp;
-	this->hidden->waveBuf[0].nsamples = this->hidden->mixlen / 4;
+	this->hidden->waveBuf[0].nsamples = this->hidden->mixlen / this->hidden->bytePerSample;
 	this->hidden->waveBuf[0].status = NDSP_WBUF_DONE;
-	//this->hidden->waveBuf[0].looping = true;
+
 	this->hidden->waveBuf[1].data_vaddr = temp + this->hidden->mixlen;
-	this->hidden->waveBuf[1].nsamples = this->hidden->mixlen / 4;
+	this->hidden->waveBuf[1].nsamples = this->hidden->mixlen / this->hidden->bytePerSample;
 	this->hidden->waveBuf[1].status = NDSP_WBUF_DONE;
-	//this->hidden->waveBuf[0].looping = true;
 
 	stream_offset += this->hidden->mixlen;
 
 	//ndspChnWaveBufAdd(0, &this->hidden->waveBuf[0]);
 	//ndspChnWaveBufAdd(0, &this->hidden->waveBuf[1]);
 
-// end 3ds DSP init
+    // end 3ds DSP init
 
 	/*
 	 * We try to make this request more audio at the correct rate for
@@ -252,9 +250,7 @@ static int N3DSAUD_OpenAudio(_THIS, SDL_AudioSpec *spec)
 	 *  gate, like other SDL drivers tend to do.
 	 */
 	this->hidden->initial_calls = 2;
-//	this->hidden->write_delay =
-//	               (Uint32) ((((float) spec->size) / bytes_per_sec) * 1000.0f);
-
+	
 	/* We're ready to rock and roll. :-) */
 	return(0);
 }
