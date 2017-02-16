@@ -268,7 +268,7 @@ SDL_Surface *N3DS_SetVideoMode(_THIS, SDL_Surface *current,
 
 #define N3DS_CopyLoop(code) for (i = 0; i < rows; i++) { \
 src_addr = src_base_addr + (rect->x + (i + rect->y) * this->hidden->w ) * srcBytePerPixel; \
-dst_addr = dst_base_addr + (this->hidden->scr_h - (i + rect->y) + rect->x * this->hidden->scr_h) * this->hidden->byteperpixel; \
+dst_addr = dst_base_addr + (this->hidden->scr_h - 1 - (i + rect->y) + rect->x * this->hidden->scr_h) * this->hidden->byteperpixel; \
 for (j = 0; j < cols; j++) { \
 code \
 dst_addr += dst_delta; }}
