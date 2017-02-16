@@ -246,7 +246,7 @@ SDL_Surface *N3DS_SetVideoMode(_THIS, SDL_Surface *current,
 	if ( width < (this->hidden->scr_w) || height < (this->hidden->scr_h) ) {
 		int win_x = ((this->hidden->scr_w) - width) / 2;
 		int win_y = ((this->hidden->scr_h) - height) / 2;
-		this->hidden->offset = ( win_y + win_x * (this->hidden->scr_h)) * (this->hidden->byteperpixel);
+		this->hidden->offset = (win_x * (this->hidden->scr_h) - win_y) * (this->hidden->byteperpixel);
 		this->hidden->win_y = win_y;
 	} else
 		this->hidden->offset = this->hidden->win_y = 0;
@@ -267,8 +267,8 @@ SDL_Surface *N3DS_SetVideoMode(_THIS, SDL_Surface *current,
 }
 
 #define N3DS_CopyLoop(code) for (i = 0; i < rows; i++) { \
-src_addr = src_base_addr + (rect->x + (this->hidden->h - (i + rect->y)) * this->hidden->w ) * this->hidden->byteperpixel; \
-dst_addr = dst_base_addr + ( i + rect->y + rect->x * this->hidden->scr_h) * this->hidden->byteperpixel; \
+src_addr = src_base_addr + (rect->x + (i + rect->y) * this->hidden->w ) * srcBytePerPixel; \
+dst_addr = dst_base_addr + (this->hidden->scr_h - (i + rect->y) + rect->x * this->hidden->scr_h) * this->hidden->byteperpixel; \
 for (j = 0; j < cols; j++) { \
 code \
 dst_addr += dst_delta; }}
@@ -281,6 +281,7 @@ static void N3DS_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		SDL_Rect *rect = &rects[i];
 		Uint8 *src_base_addr, *dst_base_addr;
 		Uint8 *src_addr, *dst_addr;
+		Uint8 srcBytePerPixel;
 		int cols, rows;
 
 		if ( ! rect )
@@ -292,6 +293,8 @@ static void N3DS_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 
 		cols = (rect->x + rect->w > this->hidden->w) ? this->hidden->w : rect->w;
 		rows = (rect->y + rect->h > this->hidden->h) ? this->hidden->h : rect->h;
+
+		srcBytePerPixel = (SDL_VideoSurface->format->BitsPerPixel) / 8; //this can be different
 
 		if ( SDL_VideoSurface->format->BitsPerPixel == 8 ) {
 			N3DS_CopyLoop(*(Uint32 *)dst_addr = n3ds_palette[*(Uint8 *)src_addr]; src_addr++;)
@@ -310,7 +313,7 @@ static void N3DS_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 	gfxSwapBuffers();
 }
 
-#define N3DS_MAP_RGB(r, g, b)	(r << 24 | g << 16 | b << 8)
+#define N3DS_MAP_RGB(r, g, b)	((Uint32)r << 24 | (Uint32)g << 16 | (Uint32)b << 8)
 
 static int N3DS_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {
