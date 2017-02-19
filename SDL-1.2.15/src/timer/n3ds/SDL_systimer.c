@@ -10,10 +10,19 @@
 #include "SDL_error.h"
 #include "../SDL_timer_c.h"
 
-static struct timeval start;
+static Uint32 ticksLast, ticksPassed;
+static unsigned char UseAccel = 0;
+#define ACCEL_RATIO 3
+
+void N3DS_SetAccel(unsigned char acc) {
+	UseAccel = (acc)?(ACCEL_RATIO):1;
+}
 
 void SDL_StartTicks (void) {
+	struct timeval start;
 	gettimeofday (&start, NULL);
+	ticksLast = start.tv_sec * 1000 + start.tv_usec / 1000;
+	ticksPassed = 0;
 }
 
 Uint32 SDL_GetTicks (void) {
@@ -21,9 +30,11 @@ Uint32 SDL_GetTicks (void) {
 	struct timeval now;
 
 	gettimeofday (&now, NULL);
-	ticks = (now.tv_sec - start.tv_sec) * 1000 + (now.tv_usec - start.tv_usec) / 1000;
+	ticks = now.tv_sec * 1000 + now.tv_usec / 1000;
 
-	return (ticks);
+	ticksPassed += (ticks - ticksLast) * UseAccel;
+	ticksLast = ticks;
+	return (ticksPassed);
 }
 
 void SDL_Delay (Uint32 ms) {

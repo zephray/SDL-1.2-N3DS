@@ -61,6 +61,8 @@ void N3DS_PumpEvents(_THIS)
 		}
 	}
 
+	N3DS_SetAccel(hidKeysHeld()&(1<<9));//ZL Key Held, use acceleration;
+
 	if (hidKeysHeld() & KEY_TOUCH) {
 		touchPosition touch;
 
