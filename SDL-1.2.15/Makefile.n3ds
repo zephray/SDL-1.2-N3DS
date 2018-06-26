@@ -101,10 +101,10 @@ $(TARGET_LIB): $(OBJS)
 	@echo "extern const u32" `(echo $(CURBIN) | sed -e 's/^\([0-9]\)/_\1/' | tr . _)`_size";" >> `(echo $(CURBIN) | tr . _)`.h
 
 install: $(TARGET_LIB)
-	@mkdir -p "$(DEVKITPRO)/portlibs/armv6k/lib"
-	@cp  $(TARGET_LIB) "$(DEVKITPRO)/portlibs/armv6k/lib"
-	@mkdir -p "$(DEVKITPRO)/portlibs/armv6k/include/SDL"
-	@cp include/*.h "$(DEVKITPRO)/portlibs/armv6k/include/SDL"
+	@mkdir -p "$(DEVKITPRO)/portlibs/3ds/lib"
+	@cp  $(TARGET_LIB) "$(DEVKITPRO)/portlibs/3ds/lib"
+	@mkdir -p "$(DEVKITPRO)/portlibs/3ds/include/SDL"
+	@cp include/*.h "$(DEVKITPRO)/portlibs/3ds/include/SDL"
 	@echo "Installed!"
 
 clean:
