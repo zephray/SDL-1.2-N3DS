@@ -64,19 +64,24 @@ void SDL_SYS_SetupThread(void)
 
 Uint32 SDL_ThreadID(void)
 {
-	//Incompatible with SDL API, this function will NOT return
-	//a valid thread ID when called from the main thread.
+	// When called from main thread, return -1.
+	// Thread ID 0 is reserved and should not be used for main thread
+	// For some reason, threadGetHandle(threadGetCurrent) doesn't always work,
+    // Use Thread pointer as thread ID as a workaround.
 	Thread current = threadGetCurrent();
-	Handle handle = threadGetHandle(current);
-	u32 threadID;
-	svcGetThreadId(&threadID, handle);
 
-	return threadID;
+	if (current != NULL) {
+		u32 threadID = (u32)current;	
+		return threadID;
+	}
+	else {
+		return -1; // Normally this means it is main thread
+	}
 }
 
 void SDL_SYS_WaitThread(SDL_Thread *thread)
 {
-	threadJoin(thread->handle, U64_MAX);
+	threadJoin(thread->handle, 0x7FFFFFFFFFFFFFFF);
 }
 
 void SDL_SYS_KillThread(SDL_Thread *thread)
