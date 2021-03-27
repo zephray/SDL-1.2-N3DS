@@ -43,7 +43,7 @@ struct SDL_PrivateVideoData {
 	int scr_h;
 	void *buffer;
 	Uint8 *fb;
-	GSPGPU_FramebufferFormats mode;
+	GSPGPU_FramebufferFormat mode;
 	unsigned int screens; // SDL_TOPSCR, SDL_BOTTOMSCR, SDL_DUALSCR
 	unsigned int console; // SDL_CONSOLETOP, SDL_CONSOLEBOTTOM
 	unsigned int fitscreen; // SDL_TRIMBOTTOMSCR, SDL_FITWIDTH, SDL_FITHEIGHT (SDL_FULLSCREEN sets both SDL_FITWIDTH and SDL_FITHEIGHT)
@@ -61,5 +61,5 @@ typedef enum
 	GSP_RGB565_OES=2,  ///< RGB565. (2 bytes)
 	GSP_RGB5_A1_OES=3, ///< RGB5A1. (2 bytes)
 	GSP_RGBA4_OES=4    ///< RGBA4. (2 bytes)
-} GSPGPU_FramebufferFormats;
+} GSPGPU_FramebufferFormat;
 */
