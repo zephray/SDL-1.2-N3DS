@@ -1,7 +1,7 @@
 # SDL-1.2-N3DS
-Port of SDL-1.2.15 to Nintendo 3DS based on nop90's port. This port is basiclly working, very compatible with standard SDL but not very efficient. To port some game which require high processing power, one would better look into a fake SDL wrapper layer.
+Port of SDL-1.2.15 to Nintendo 3DS based on nop90's port. This port is mostly working, but not very efficient. To port some game which require high processing power, one might want to look into using fake SDL wrapper layer instead of a real SDL port.
 
-This project is no longer under active developement since it is basically done. nop90 is working on a fully hardware accelerated SDL port, please check it out.
+This project is no longer under active developement since 2016 except for some occasional bug fixes. There is a more official SDL 1.2 port distributed with devkitPro, try to use that if possible.
 
 Example codes using this port can be found under examples folder.
 
