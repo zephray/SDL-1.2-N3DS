@@ -277,6 +277,9 @@ static void N3DS_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 	int i, j, k;
 	Uint32 dst_delta = this->hidden->scr_h * this->hidden->byteperpixel;
 
+	if ((this->hidden->scr_h == 0) || (this->hidden->scr_w == 0))
+		return;
+
 	for ( i = 0; i < numrects; ++i ) {
 		SDL_Rect *rect = &rects[i];
 		Uint8 *src_base_addr, *dst_base_addr;
