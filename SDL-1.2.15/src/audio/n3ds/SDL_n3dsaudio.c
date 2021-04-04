@@ -121,17 +121,15 @@ static void N3DSAUD_PlayAudio(_THIS)
 	if (this->hidden->format==NDSP_FORMAT_STEREO_PCM8 || this->hidden->format==NDSP_FORMAT_MONO_PCM8) {
 		memcpy(this->hidden->waveBuf[this->hidden->nextbuf].data_pcm8,this->hidden->mixbuf,this->hidden->mixlen);
 		DSP_FlushDataCache(this->hidden->waveBuf[this->hidden->nextbuf].data_pcm8,
-							this->hidden->waveBuf[this->hidden->nextbuf].nsamples);
+							this->hidden->mixlen);
 	} else {
 		memcpy(this->hidden->waveBuf[this->hidden->nextbuf].data_pcm16,this->hidden->mixbuf,this->hidden->mixlen);
 		DSP_FlushDataCache(this->hidden->waveBuf[this->hidden->nextbuf].data_pcm16,
-							this->hidden->waveBuf[this->hidden->nextbuf].nsamples);
+							this->hidden->mixlen);
 	}
-	this->hidden->waveBuf[this->hidden->nextbuf].offset=0;
-	this->hidden->waveBuf[this->hidden->nextbuf].status=NDSP_WBUF_QUEUED;
 	ndspChnWaveBufAdd(0, &this->hidden->waveBuf[this->hidden->nextbuf]);
 
-	this->hidden->nextbuf = (this->hidden->nextbuf+1)%2;
+	this->hidden->nextbuf = !this->hidden->nextbuf;
 }
 
 static Uint8 *N3DSAUD_GetAudioBuf(_THIS)
